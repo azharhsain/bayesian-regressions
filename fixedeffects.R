@@ -13,7 +13,7 @@ yy <- airquality$Ozone
 XX <- airquality[, c('Solar.R', 'Wind', 'Temp')]
 groups <- airquality$Month
 
-do.efficient <- T
+do.efficient <- F
 
 ##### Standard Structure #####
 
@@ -82,7 +82,7 @@ if (do.efficient) {
     for (ii in 1:ncol(XX))
         allentries[[ii+1]] <- XX[valid, ii]
 
-    demeaned <- demeanlist(allentries, groups)
+    demeaned <- demeanlist(allentries, list(valid.groups))
 
     dmyy <- demeaned[[1]]
     dmXX <- demeaned[[2]]

@@ -10,6 +10,6 @@ The point of Bayesian Regressions is to get non-parametric parameter uncertainty
 ## The templates
 
  - Multivariate regression
- - Fixed effects regression
  - Robust noise regression
+ - Fixed effects regression
  - Constrained parameter regression

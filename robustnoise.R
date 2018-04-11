@@ -11,7 +11,7 @@ summary(lm(Ozone ~ Solar.R + Wind + Temp, data=airquality))
 yy <- airquality$Ozone
 XX <- airquality[, c('Solar.R', 'Wind', 'Temp')]
 
-do.efficient <- T
+do.efficient <- F
 
 ##### Standard Structure #####
 

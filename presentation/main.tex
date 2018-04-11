@@ -1,0 +1,198 @@
+\documentclass{beamer}
+%
+% Choose how your presentation looks.
+%
+% For more themes, color themes and font themes, see:
+% http://deic.uab.es/~iblanes/beamer_gallery/index_by_theme.html
+%
+\mode<presentation>
+{
+  \usetheme{default}      % or try Darmstadt, Madrid, Warsaw, ...
+  \usecolortheme{default} % or try albatross, beaver, crane, ...
+  \usefonttheme{default}  % or try serif, structurebold, ...
+  \setbeamertemplate{navigation symbols}{}
+  \setbeamertemplate{caption}[numbered]
+} 
+
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{nicefrac}
+
+\title[Bayesian Regressions]{Talking out our posteriors, or how to do
+  Bayesian regression}
+
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\ii}{\item}
+
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\section{Introduction}
+
+\frame{
+\frametitle{Overview of the Learning Session}
+
+\bi
+\ii Introduction to Bayesianism
+\ii Simple computational Bayes
+\ii Bayesian regression
+\ei
+}
+
+\frame{
+  \frametitle{Discussions to have}
+
+  \begin{itemize}
+  \item Forgeting event spaces for random variables.
+  \item Adult form of the Bayes Rule.
+  \item Bayesian learning, vs. Bayesian statistics.
+  \item The theory and practice of Markov Chain Monte Carlos.
+  \item More intuitive ways to turn Bayes's rule to a posterior.
+  \end{itemize}
+
+  {\bf Want to show how to run regressions with non-parametric
+    parameters.}
+}
+
+\frame{
+  \frametitle{Theoretical setup}
+
+  Example: Let
+  \[
+    y_i = \sum_i \beta_k x_{ik} + \epsilon_i
+  \]
+
+  If we assume i.i.d., $\epsilon_i \sim \mathcal{N}(0, \sigma^2)$, so
+  \bi
+  \ii $p(x | \beta, \sigma) = \mathcal{N}(y_i | \sum_i \beta_k x_ik,
+    \sigma_i^2)$
+  \ii $p(\beta) \propto 1$, $p(\log{\sigma}) \propto 1$
+  \ii $p(\beta, \sigma | x)$ is the regression result.
+  \ei
+}
+
+\frame{
+  \frametitle{Simple example}
+
+  Suppose we have data $x_i$ and our data-generating model is
+  \[
+    x_i \sim \mathcal{N}(\beta, \sigma)
+  \]
+  and we don't impose that $\beta$ has a parametric form.
+
+  Start with non-informative priors:
+  \begin{align*}
+    p(\beta) &\propto 1 \\
+    p(\log{\sigma}) &\propto 1
+  \end{align*}
+  
+  Using our math:
+  \begin{align*}
+    p(\beta, \sigma | x)
+    &\propto p(\beta) p(\sigma) p(x | \beta, \sigma) \\
+    &\propto \sigma^{-n-2} e^{-\frac{1}{2 \sigma^2} \sum_i (x_i -
+      \mu)^2} \\
+    &\propto \sigma^{-n-2} e^{-\frac{1}{2 \sigma^2} \left[(n - 1)
+      \text{Var}(x) + n (\bar{x} - \mu)^2\right]}
+  \end{align*}
+
+  Does that tell us anything?
+  \pause
+  {\bf Yes}: A relative measure of the probability of any given
+  combination of $\mu$ and $\sigma$.
+}
+
+\frame{
+  \frametitle{How do we calculate the actual distributions of $\beta$
+    and $\sigma$?}
+
+  \bi
+  \ii There is no closed-form solution.
+  \ii (This is not the case for every kind of parameter, but
+  analytical solutions are rare cases.)
+  \ii The probability of a given value of $\beta$ depends on $\sigma$.
+  \ii Various ways to numerically approximate.
+  \ei
+}
+
+\frame{
+  \includegraphics[width=\textheight]{../bayes-workshop-1/code-exp3.png}
+}
+
+\frame{
+  \includegraphics[width=\textwidth]{../bayes-workshop-1/code-exp4.png}
+}
+
+\frame{
+  \frametitle{Full Bayesian regression}
+
+  Suppose we have an OLS-style model:
+  \[
+    y | \beta, \sigma, X \sim \mathcal{N}(X \beta, \sigma^2 I)
+  \]
+  
+  As used above, the (conditional) posterior distribution of $\beta$
+  for a known $\sigma$ has an analytical form:
+  \[
+    \beta | \sigma, y \sim \mathcal{N}(\hat\beta, V_\beta \sigma^2)
+  \]
+  where
+  \begin{align*}
+    \hat\beta &= (X^\intercal X)^{-1} X^\intercal y \\
+    V_\beta &= (X^\intercal X)^{-1}
+  \end{align*}
+
+  The (marginal) posterior distribution of $\sigma$ is also recognizable:
+  \[
+    \sigma^2 | y \sim \text{Inv-}\chi^2(n - k, s^2)
+  \]
+  where
+  \[
+    s^2 = \frac{1}{n - k} (y - X \hat\beta)^\intercal (y - X
+    \hat\beta)
+  \]
+}
+
+\frame{
+  \frametitle{Algorithm for drawing from posterior distribution}
+
+  \begin{enumerate}
+  \item Calculate the model in OLS.  Let $\hat\beta$ be the OLS coefficients.
+  \item Use the model residuals to calculate $s^2$.
+  \item Use the model covariance matrix ($ = s^2 (X^\intercal
+    X)^{-1}$) calcalculate $V_\beta$.
+  \item Draw a random value of $\sigma^2$ from the scaled
+    inverse-$\chi^2$ distribution.
+  \item Draw a random value of $\beta$ from a multivariate normal,
+    using that value of $\sigma$.
+  \end{enumerate}
+
+  \vspace{1em}
+  Properties:
+  \bi
+  \ii The OLS result will be the mode of the Bayesian posterior (= MLE)
+  \ii The standard error is the second derivative of the Bayesian
+  posterior
+  \ei
+}
+
+\frame{
+  \includegraphics[width=\textheight]{../bayes-workshop-1/code-reg1.png}
+}
+
+\frame{
+  \includegraphics[width=\textwidth]{../bayes-workshop-1/code-reg2.png}
+}
+
+\frame{
+  \frametitle{Comparison}
+
+  \includegraphics[width=\textwidth]{../bayes-workshop-1/comparison.pdf}
+}
+
+\end{document}

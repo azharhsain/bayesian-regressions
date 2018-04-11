@@ -89,7 +89,7 @@ if (do.efficient) {
     for (ii in 2:ncol(XX))
         dmXX <- cbind(dmXX, demeaned[[ii+1]])
 
-    stan.data <- list(N=sum(valid), K=ncol(XX), x=dmXX, y=dmyy, L=length(levels(valid.groups)), groups=as.numeric(valid.groups))
+    stan.data <- list(N=sum(valid), K=ncol(XX), x=dmXX, y=dmyy)
 
     fit <- stan(model_code=stan.code.faster, data=stan.data)
 } else {

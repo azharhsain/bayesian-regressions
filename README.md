@@ -31,7 +31,9 @@ Each template (except the last one) has an example part and a general
 part.  The example can be swapped out with the general part still
 used.
 
- - Multivariate regression
- - Robust noise regression
- - Fixed effects regression
- - Constrained parameter regression
+ - Multivariate regression (`multivariate.R`)
+ - Robust noise regression (`robustnoise.R`)
+ - Fixed effects regression (`fixedeffects.R`)
+ - Constrained parameter regression (`paramlimits.R`)
+
+To start, install Stan using `setup.R`.  Then run the template of your choice, and display the results with the options in `display.R`.
